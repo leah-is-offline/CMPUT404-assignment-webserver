@@ -25,7 +25,7 @@ class TestYourWebserver(unittest.TestCase):
     def setUp(self,baseurl=BASEURL):
         """do nothing"""
         self.baseurl = baseurl
-
+    
     def test_get_root(self):
         url = self.baseurl + "/"
         req = request.urlopen(url, None, 3)
@@ -99,9 +99,9 @@ class TestYourWebserver(unittest.TestCase):
         req = request.urlopen(url, None, 3)
         self.assertTrue( req.getcode()  == 200 , "200 OK Not FOUND!")
         self.assertTrue( req.info().get_content_type() == "text/html", ("Bad mimetype for html! %s" % req.info().get_content_type()))
-
+    
     def test_hardcode(self):
-        os.system("cp -r www/deep www/hardcode")
+        os.system("cp -r www/deep www/hardcode") #copies contents of www/deep into www/hardcode
         url = self.baseurl + "/hardcode/index.html"
         req = request.urlopen(url, None, 3)
         self.assertTrue( req.getcode()  == 200 , "200 OK Not FOUND! Hardcoding? /hardcode/index.html")

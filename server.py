@@ -92,10 +92,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
         else:
             icon = '<html><body><center><h1>{icon}</p></center></body></html>\r\n\r\n'.format(icon = coffee)
         
-
+        error_display = '<html><body><center><h3>{sc} {m}</p></center></body></html>'.format(sc = status_code, m = message)
         if body is not None:
             reply += '<html><body><center><h4>{b}</p></center></body></html>'.format(b = body)
-        reply+=icon
+        reply += error_display +icon
        
         encoded_reply = reply.encode('utf-8')
         self.request.sendall(encoded_reply)
@@ -103,28 +103,31 @@ class MyWebServer(socketserver.BaseRequestHandler):
         
     def genPath(self, req_path):
         # function to decide valid response from provided path
+        
         base = os.path.abspath("www")
         full_path = base + req_path
-        #print(full_path)
+        print(full_path)
         
-        
+        # parent dir needs to be in abs path in this case www
         if base not in os.path.abspath(full_path):     
-            self.reply("404", "Not Found" ,None)
+            self.reply("404", "Not Found" , None)
             return
 
-        if os.path.exists(full_path):            
+        # extra 
+        if os.path.exists(full_path):
+            # check if directory which has to end with / ,otherwise display page has moved
             if os.path.isdir(full_path):
-
                 if (not req_path.endswith("/")):
-                    self.reply("301", "Page Moved", 'Moved To: localhost:8080/{}/'.format(rq = req_path))
+                    self.reply("301", "Page Moved", 'Moved To: localhost:8080{rq}//'.format(rq = req_path))
                     return
 
-            if req_path[-1] == "/":
+            # serve index file either way, could use index.html but possibly other file names?
+            if req_path.endswith("/"):
                 if "html" not in req_path:
                     full_path += "index.html"
 
-            page = self.readFile(full_path)
             mimetype = self.getMimeType(full_path)
+            page = self.readFile(full_path)
             self.respond(mimetype, page)
         else:
             self.reply("404", "Not Found", None)
